@@ -46,6 +46,7 @@ public class AntBehaviour : MonoBehaviour
         {
             //Debug.Log("Ant " + ID + " has died");
             wm.Positions[((int)transform.position.x), ((int)transform.position.y), ((int)transform.position.z)].Remove(this.gameObject);
+            wm.AliveAnts--;
             Destroy(this.gameObject);
         }
         else
@@ -99,6 +100,10 @@ public class AntBehaviour : MonoBehaviour
                     int rand = RNG.Next(100);
                     if (rand < digChance)
                     {
+                        if (wm.GetBlock(((int)transform.position.x), ((int)transform.position.y) - 1, ((int)transform.position.z)) as NestBlock != null)
+                        {
+                            wm.NestBlocks--;
+                        }
                         //Debug.Log("Ant " + ID + " has dug a block");
                         wm.SetBlock(((int)transform.position.x), ((int)transform.position.y) - 1, ((int)transform.position.z), ((new AirBlock()) as AbstractBlock));
                         for (int m = 0; m < wm.Positions[((int)transform.position.x), ((int)transform.position.y), ((int)transform.position.z)].Count; m++)
@@ -141,6 +146,7 @@ public class AntBehaviour : MonoBehaviour
                             transform.position = v;
                             health += 3333;
                             wm.Positions[((int)transform.position.x), ((int)transform.position.y), ((int)transform.position.z)].Add(this.gameObject);
+                            wm.NestBlocks++;
                                                      
 
                         }
@@ -199,6 +205,10 @@ public class AntBehaviour : MonoBehaviour
                     int rand = RNG.Next(100);
                     if (rand < digChance)
                     {
+                        if(wm.GetBlock(((int)transform.position.x), ((int)transform.position.y) - 1, ((int)transform.position.z)) as NestBlock != null)
+                        {
+                            wm.NestBlocks--;
+                        }
                         //Debug.Log("Ant " + ID + " has dug a block");
                         wm.SetBlock(((int)transform.position.x), ((int)transform.position.y) - 1, ((int)transform.position.z), ((new AirBlock()) as AbstractBlock));
                         for (int m = 0; m < wm.Positions[((int)transform.position.x), ((int)transform.position.y), ((int)transform.position.z)].Count; m++)

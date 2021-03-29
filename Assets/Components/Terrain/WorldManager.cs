@@ -42,6 +42,16 @@ namespace Antymology.Terrain
         /// </summary>
         private System.Random RNG;
 
+        public int AliveAnts;
+
+        public int NestBlocks;
+
+        public int Iteration;
+
+        public int individual;
+
+        public bool queenAlive;
+
         /// <summary>
         /// Random number generator.
         /// </summary>
@@ -49,6 +59,13 @@ namespace Antymology.Terrain
         //refrence to an array of ant populations
         public List<GameObject>[,,] Positions;
 
+        public enum views
+        {
+            MainMenu,
+            Train,
+            CurrentPopulation,
+        }
+        public views view;
 
         #endregion
 
@@ -83,13 +100,9 @@ namespace Antymology.Terrain
         /// </summary>
         private void Start()
         {
-            GenerateData();
-            GenerateChunks();
-
-            Camera.main.transform.position = new Vector3(0 / 2, Blocks.GetLength(1), 0);
-            Camera.main.transform.LookAt(new Vector3(Blocks.GetLength(0), 0, Blocks.GetLength(2)));
-
-            GenerateAnts();
+            NestBlocks = 0;
+            AliveAnts = 1000;
+            view = views.MainMenu;
         }
 
         /// <summary>
@@ -490,9 +503,96 @@ namespace Antymology.Terrain
                         Chunks[x, y, z] = chunkScript;
                     }
         }
+        public void clearWorld()
+        {
+            for(int x = 0;x< Positions.GetLength(0); x++)
+            {
+                for(int y = 0; y < Positions.GetLength(1); y++)
+                {
+                    for(int z = 0;z < Positions.GetLength(2); z++)
+                    {
+                        Blocks[x, y, z] = null;
+                        for(int k = 0; k < Positions[x,y,z].Count;k++)
+                        if(Positions[x,y,z] != null)
+                        {
+                            Destroy(Positions[x, y, z][k]);
+                            Positions[x, y, z][k] = null;
+                        }
+                    }
+                }
+            }
+            Blocks = null;
+            Positions = null;
+            for (int x = 0; x < Chunks.GetLength(0); x++)
+            {
+                for (int y = 0; y < Chunks.GetLength(1); y++)
+                {
+                    for (int z = 0; z < Chunks.GetLength(2); z++)
+                    {
+                        Destroy(Chunks[x, y, z]);
+                        Chunks[x, y, z] = null;
+                    }
+                }
+            }
+            Chunks = null;
+            Destroy(GameObject.Find("Chunks"));
 
+        }
+        void OnGUI()
+        {
+            GUIStyle guiStyle = new GUIStyle();
+            guiStyle.fontSize = 20;
+            switch (view)
+            {
+                case views.MainMenu:
+                    if (GUI.Button(new Rect(Screen.width / 2, Screen.height - 40, 150, 30), "Best Population"))
+                    {
+                        NestBlocks = 0;
+                        AliveAnts = 1000;
+                        Awake();
+                        GenerateData();
+                        GenerateChunks();
+                        Camera.main.transform.position = new Vector3(0 / 2, Blocks.GetLength(1), 0);
+                        Camera.main.transform.LookAt(new Vector3(Blocks.GetLength(0), 0, Blocks.GetLength(2)));
+                        GenerateAnts();
+                        view = views.CurrentPopulation;
+                    }
+                    if (GUI.Button(new Rect(Screen.width / 2, Screen.height - 80, 150, 30), "Train"))
+                    {
+                        view = views.Train;
+                    }
+                    break;
+                case views.CurrentPopulation:
+                    string a = "Alive Ants " + AliveAnts;
+                    string b = "Nest Blocks " + NestBlocks;
+                    GUI.Label(new Rect(10, 10, 150, 20), a);
+                    GUI.Label(new Rect(Screen.width - 200, 10, 150, 20), b);
+                    if (GUI.Button(new Rect(Screen.width / 2, Screen.height - 40, 150, 30), "MainMenu"))
+                    {
+                        clearWorld();
+                        view = views.MainMenu;
+                    }
+                    break;
+                case views.Train:
+                    string a2 = "Alive Ants " + AliveAnts;
+                    string b2 = "Nest Blocks " + NestBlocks;
+                    string c = "Iteration " + Iteration;
+                    string d = "Individual" + individual;
+                    GUI.Label(new Rect(10, 10, 150, 20), a2);
+                    GUI.Label(new Rect(Screen.width - 200, 10, 150, 20), b2);
+                    GUI.Label(new Rect(10, 500, 150, 20), c);
+                    GUI.Label(new Rect(Screen.width - 200, 50, 150, 20), d);
+                    if (GUI.Button(new Rect(Screen.width / 2, Screen.height - 40, 150, 100), "MainMenu"))
+                    {
+                        view = views.MainMenu;
+                    }
+                    break;
+
+            }
+        }
         #endregion
 
         #endregion
     }
+
 }
