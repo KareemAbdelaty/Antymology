@@ -21,6 +21,9 @@ namespace Antymology.Terrain
         /// </summary>
         public Material blockMaterial;
 
+        //number of ants at the start
+        public int startingAnts;
+
         /// <summary>
         /// The raw data of the underlying world structure.
         /// </summary>
@@ -40,6 +43,9 @@ namespace Antymology.Terrain
         /// Random number generator.
         /// </summary>
         private SimplexNoise SimplexNoise;
+        //refrence to an array of ant populations
+        private GameObject[][] Populations;
+
 
         #endregion
 
@@ -88,13 +94,23 @@ namespace Antymology.Terrain
         /// </summary>
         private void GenerateAnts()
         {
-            //pass
+
+            for (int i = 0; i < startingAnts; i++) {
+                int x = RNG.Next(Blocks.GetLength(0));
+                int z = RNG.Next(Blocks.GetLength(2));
+                GameObject ant = (GameObject)Instantiate(antPrefab);
+                for (int y = 0; y < Blocks.GetLength(1); y++) {
+                    if (Blocks[x, y, z] as AirBlock != null) { 
+                        ant.transform.position = new Vector3(x, y, z);
+                    } 
+                }
+
+
+            }
         }
 
         #endregion
-
-        #region Methods
-
+        #region
         /// <summary>
         /// Retrieves an abstract block type at the desired world coordinates.
         /// </summary>
