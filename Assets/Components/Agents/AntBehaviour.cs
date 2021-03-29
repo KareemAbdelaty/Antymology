@@ -19,6 +19,8 @@ public class AntBehaviour : MonoBehaviour
     public bool isqueen;
     public WorldManager wm;
     private System.Random RNG;
+    public int createNestChance;
+
     void Start()
     {
         RNG = new System.Random();
@@ -42,7 +44,7 @@ public class AntBehaviour : MonoBehaviour
         }
         if (health <= 0)
         {
-            Debug.Log("Ant " + ID + " has died");
+            //Debug.Log("Ant " + ID + " has died");
             wm.Positions[((int)transform.position.x), ((int)transform.position.y), ((int)transform.position.z)].Remove(this.gameObject);
             Destroy(this.gameObject);
         }
@@ -67,7 +69,7 @@ public class AntBehaviour : MonoBehaviour
                 }
                 if (wm.GetBlock(x, y, z) as AirBlock != null && wm.GetBlock(x, y - 1, z) as AirBlock == null)
                 {
-                    Debug.Log("Ant " + ID + " has moved");
+                    //Debug.Log("Ant " + ID + " has moved");
                     wm.Positions[((int)transform.position.x), ((int)transform.position.y), ((int)transform.position.z)].Remove(this.gameObject);
                     Vector3 v = new Vector3(x, y, z);
                     transform.position = v;
@@ -81,7 +83,7 @@ public class AntBehaviour : MonoBehaviour
                         int rand = RNG.Next(100);
                         if (rand < eatChance)
                         {
-                            Debug.Log("Ant " + ID + " has consumed a mulch block");
+                            //Debug.Log("Ant " + ID + " has consumed a mulch block");
                             wm.SetBlock(((int)transform.position.x), ((int)transform.position.y) - 1, ((int)transform.position.z), ((new AirBlock()) as AbstractBlock));
                             wm.Positions[((int)transform.position.x), ((int)transform.position.y), ((int)transform.position.z)].Remove(this.gameObject);
                             Vector3 v = new Vector3(transform.position.x, transform.position.y - 1, transform.position.z);
@@ -97,7 +99,7 @@ public class AntBehaviour : MonoBehaviour
                     int rand = RNG.Next(100);
                     if (rand < digChance)
                     {
-                        Debug.Log("Ant " + ID + " has dug a block");
+                        //Debug.Log("Ant " + ID + " has dug a block");
                         wm.SetBlock(((int)transform.position.x), ((int)transform.position.y) - 1, ((int)transform.position.z), ((new AirBlock()) as AbstractBlock));
                         for (int m = 0; m < wm.Positions[((int)transform.position.x), ((int)transform.position.y), ((int)transform.position.z)].Count; m++)
                         {
@@ -123,6 +125,30 @@ public class AntBehaviour : MonoBehaviour
                     }
 
                 }
+                if(health-3333 > 0)
+                {
+                    int rand = RNG.Next(100);
+                    if(rand< createNestChance)
+                    {
+                        health -= 3333;
+                        if (wm.GetBlock(((int)transform.position.x), ((int)transform.position.y) + 1, ((int)transform.position.z)) as AirBlock != null && ((int)transform.position.y) + 1 < yimention)
+                        {
+    
+                            Debug.Log("Queen has produced a nest Block");
+                            wm.SetBlock(((int)transform.position.x), ((int)transform.position.y) , ((int)transform.position.z), ((new NestBlock()) as AbstractBlock));
+                            wm.Positions[((int)transform.position.x), ((int)transform.position.y), ((int)transform.position.z)].Remove(this.gameObject);
+                            Vector3 v = new Vector3(transform.position.x, transform.position.y + 1, transform.position.z);
+                            transform.position = v;
+                            health += 3333;
+                            wm.Positions[((int)transform.position.x), ((int)transform.position.y), ((int)transform.position.z)].Add(this.gameObject);
+                                                     
+
+                        }
+
+
+                    }
+
+                }
             }
             else
             {
@@ -143,7 +169,7 @@ public class AntBehaviour : MonoBehaviour
                 }
                 if (wm.GetBlock(x, y, z) as AirBlock != null && wm.GetBlock(x, y - 1, z) as AirBlock == null)
                 {
-                    Debug.Log("Ant " + ID + " has moved");
+                    //Debug.Log("Ant " + ID + " has moved");
                     wm.Positions[((int)transform.position.x), ((int)transform.position.y), ((int)transform.position.z)].Remove(this.gameObject);
                     Vector3 v = new Vector3(x, y, z);
                     transform.position = v;
@@ -157,7 +183,7 @@ public class AntBehaviour : MonoBehaviour
                         int rand = RNG.Next(100);
                         if (rand < eatChance)
                         {
-                            Debug.Log("Ant " + ID + " has consumed a mulch block");
+                            //Debug.Log("Ant " + ID + " has consumed a mulch block");
                             wm.SetBlock(((int)transform.position.x), ((int)transform.position.y) - 1, ((int)transform.position.z), ((new AirBlock()) as AbstractBlock));
                             wm.Positions[((int)transform.position.x), ((int)transform.position.y), ((int)transform.position.z)].Remove(this.gameObject);
                             Vector3 v = new Vector3(transform.position.x, transform.position.y - 1, transform.position.z);
@@ -173,7 +199,7 @@ public class AntBehaviour : MonoBehaviour
                     int rand = RNG.Next(100);
                     if (rand < digChance)
                     {
-                        Debug.Log("Ant " + ID + " has dug a block");
+                        //Debug.Log("Ant " + ID + " has dug a block");
                         wm.SetBlock(((int)transform.position.x), ((int)transform.position.y) - 1, ((int)transform.position.z), ((new AirBlock()) as AbstractBlock));
                         for (int m = 0; m < wm.Positions[((int)transform.position.x), ((int)transform.position.y), ((int)transform.position.z)].Count; m++)
                         {
@@ -230,7 +256,7 @@ public class AntBehaviour : MonoBehaviour
                                 int sharedHealth = RNG.Next(health);
                                 beh.health += sharedHealth;
                                 health -= sharedHealth;
-                                Debug.Log("Ant " + ID + " has shared health with queen");
+                                //Debug.Log("Ant " + ID + " has shared health with queen");
                             }
 
                         }
@@ -246,7 +272,7 @@ public class AntBehaviour : MonoBehaviour
                                 int sharedHealth = RNG.Next(health);
                                 beh.health += sharedHealth;
                                 health -= sharedHealth;
-                                Debug.Log("Ant " + ID + " has shared health with Ant " + beh.ID);
+                                //Debug.Log("Ant " + ID + " has shared health with Ant " + beh.ID);
                             }
                         }
                     }

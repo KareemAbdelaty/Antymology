@@ -114,6 +114,7 @@ namespace Antymology.Terrain
             int queen_health_share_chance =  RNG.Next(100); ;
             int eatChance = RNG.Next(100); 
             int digChance = RNG.Next(100);
+            int createNestChance = RNG.Next(100);
             int xd = Blocks.GetLength(0);
             int yd = Blocks.GetLength(1);
             int zd = Blocks.GetLength(2);
@@ -142,6 +143,7 @@ namespace Antymology.Terrain
                         a.xdimention = xd;
                         a.yimention = yd;
                         a.zdimention = zd;
+                        a.createNestChance = createNestChance;
 
                     } 
                 }
