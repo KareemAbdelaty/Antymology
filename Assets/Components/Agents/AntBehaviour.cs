@@ -40,13 +40,14 @@ public class AntBehaviour : MonoBehaviour
         }
         if (health <= 0)
         {
+            wm.Positions[((int)transform.position.x), ((int)transform.position.y), ((int)transform.position.z)].Remove(this.gameObject);
             Destroy(this.gameObject);
         }
         else
         {
-            int x = (int)(transform.position.x + RNG.Next(-2, 3));
-            int y = (int)(transform.position.y + RNG.Next(-2, 3));
-            int z = (int)(transform.position.z + RNG.Next(-2, 3));
+            int x = (int)(transform.position.x + RNG.Next(-10, 11));
+            int y = (int)(transform.position.y + RNG.Next(-10, 11));
+            int z = (int)(transform.position.z + RNG.Next(-10, 11));
             if (x >= xdimention || x < 0)
             {
                 x = (int)transform.position.x;
@@ -61,8 +62,24 @@ public class AntBehaviour : MonoBehaviour
             }
             if (wm.GetBlock(x, y, z) as AirBlock != null && wm.GetBlock(x, y - 1, z) as AirBlock == null)
             {
+                wm.Positions[((int)transform.position.x), ((int)transform.position.y), ((int)transform.position.z)].Remove(this.gameObject);
                 Vector3 v = new Vector3(x, y, z);
                 transform.position = v;
+                wm.Positions[((int)transform.position.x), ((int)transform.position.y), ((int)transform.position.z)].Add(this.gameObject);
+            }
+            int antsInSamePosition = wm.Positions[((int)transform.position.x), ((int)transform.position.y),( (int)transform.position.z)].Count;
+            if(antsInSamePosition == 1)
+            {
+                if (wm.GetBlock(((int)transform.position.x), ((int)transform.position.y) -1, ((int)transform.position.z)) as MulchBlock != null) {
+                    int rand = RNG.Next(100);
+                    if (rand < eatChance) {
+                        wm.SetBlock(((int)transform.position.x), ((int)transform.position.y) - 1, ((int)transform.position.z), ((new AirBlock()) as AbstractBlock));
+                        wm.Positions[((int)transform.position.x), ((int)transform.position.y), ((int)transform.position.z)].Remove(this.gameObject);
+                        Vector3 v = new Vector3(x, y-1, z);
+                        transform.position = v;
+                        wm.Positions[((int)transform.position.x), ((int)transform.position.y), ((int)transform.position.z)].Add(this.gameObject);
+                    }
+                }
             }
         }
 

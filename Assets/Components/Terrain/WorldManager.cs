@@ -47,7 +47,7 @@ namespace Antymology.Terrain
         /// </summary>
         private SimplexNoise SimplexNoise;
         //refrence to an array of ant populations
-        private GameObject[,] Populations;
+        public List<GameObject>[,,] Positions;
 
 
         #endregion
@@ -97,7 +97,17 @@ namespace Antymology.Terrain
         /// </summary>
         private void GenerateAnts()
         {
-            Populations = new GameObject[generationsPerRound,startingAnts];
+            Positions = new List<GameObject>[Blocks.GetLength(0), Blocks.GetLength(1), Blocks.GetLength(2)];
+            for(int k = 0;k < Blocks.GetLength(0); k++)
+            {
+                for(int m = 0; m < Blocks.GetLength(1); m++)
+                {
+                    for(int n = 0; n < Blocks.GetLength(2); n++)
+                    {
+                        Positions[k, m, n] = new List<GameObject>();
+                    }
+                }
+            }
             int health = 99999;
             int health_share_chance = RNG.Next(100); ;
             int health_share_with_queen_chance =  RNG.Next(100); ;
@@ -115,6 +125,7 @@ namespace Antymology.Terrain
                     if (Blocks[x, y, z] as AirBlock != null) { 
                         ant.transform.position = new Vector3(x, y, z);
                         AntBehaviour a = ant.GetComponent<AntBehaviour>();
+                        Positions[x, y, z].Add(ant);
                         if (i == 0) {
                             MeshRenderer me = ant.GetComponent<MeshRenderer>();
                             me.material = Resources.Load("Queen", typeof(Material)) as Material;
