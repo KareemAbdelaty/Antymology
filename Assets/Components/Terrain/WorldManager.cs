@@ -24,6 +24,9 @@ namespace Antymology.Terrain
         //number of ants at the start
         public int startingAnts;
 
+        // number of generations per training round
+        public int generationsPerRound;
+
         /// <summary>
         /// The raw data of the underlying world structure.
         /// </summary>
@@ -44,7 +47,7 @@ namespace Antymology.Terrain
         /// </summary>
         private SimplexNoise SimplexNoise;
         //refrence to an array of ant populations
-        private GameObject[][] Populations;
+        private GameObject[,] Populations;
 
 
         #endregion
@@ -94,14 +97,40 @@ namespace Antymology.Terrain
         /// </summary>
         private void GenerateAnts()
         {
-
+            Populations = new GameObject[generationsPerRound,startingAnts];
+            int health = 999;
+            int health_share_chance = RNG.Next(100); ;
+            int health_share_with_queen_chance =  RNG.Next(100); ;
+            int queen_health_share_chance =  RNG.Next(100); ;
+            int eatChance = RNG.Next(100); 
+            int digChance = RNG.Next(100);
+            int xd = Blocks.GetLength(0);
+            int yd = Blocks.GetLength(1);
+            int zd = Blocks.GetLength(2);
             for (int i = 0; i < startingAnts; i++) {
                 int x = RNG.Next(Blocks.GetLength(0));
                 int z = RNG.Next(Blocks.GetLength(2));
                 GameObject ant = (GameObject)Instantiate(antPrefab);
-                for (int y = 0; y < Blocks.GetLength(1); y++) {
+                for (int y = Blocks.GetLength(1)-1; y >= 0; y--) {
                     if (Blocks[x, y, z] as AirBlock != null) { 
                         ant.transform.position = new Vector3(x, y, z);
+                        AntBehaviour a = ant.GetComponent<AntBehaviour>();
+                        if (i == 0) {
+                            MeshRenderer me = ant.GetComponent<MeshRenderer>();
+                            me.material = Resources.Load("Queen", typeof(Material)) as Material;
+                            a.isqueen = true;
+
+                        }
+                        a.wm = this;
+                        a.health = health;
+                        a.health_share_chance = health_share_chance;
+                        a.queen_health_share_chance = queen_health_share_chance;
+                        a.eatChance = eatChance;
+                        a.digChance = digChance;
+                        a.xdimention = xd;
+                        a.yimention = yd;
+                        a.zdimention = zd;
+
                     } 
                 }
 
