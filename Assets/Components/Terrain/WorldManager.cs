@@ -108,7 +108,7 @@ namespace Antymology.Terrain
                     }
                 }
             }
-            int health = 99999;
+            int health = 9999;
             int health_share_chance = RNG.Next(100); ;
             int health_share_with_queen_chance =  RNG.Next(100); ;
             int queen_health_share_chance =  RNG.Next(100); ;
@@ -132,6 +132,7 @@ namespace Antymology.Terrain
                             a.isqueen = true;
 
                         }
+                        a.ID = i;
                         a.wm = this;
                         a.health = health;
                         a.health_share_chance = health_share_chance;
