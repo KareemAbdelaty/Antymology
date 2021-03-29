@@ -98,7 +98,7 @@ namespace Antymology.Terrain
         private void GenerateAnts()
         {
             Populations = new GameObject[generationsPerRound,startingAnts];
-            int health = 999;
+            int health = 99999;
             int health_share_chance = RNG.Next(100); ;
             int health_share_with_queen_chance =  RNG.Next(100); ;
             int queen_health_share_chance =  RNG.Next(100); ;

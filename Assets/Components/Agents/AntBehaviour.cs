@@ -31,24 +31,39 @@ public class AntBehaviour : MonoBehaviour
     }
     void FixedUpdate()
     {
-        int x = (int)(transform.position.x + RNG.Next(-2,3));
-        int y = (int)(transform.position.y + RNG.Next(-2,3));
-        int z = (int)(transform.position.z + RNG.Next(-2,3));
-        if (x >= xdimention || x <0)
+        if (wm.GetBlock((int)transform.position.x, (int)(transform.position.y - 1), (int)transform.position.z) as AcidicBlock != null)
         {
-            x = (int)transform.position.x;
+            health -= 4;
         }
-        if (y >= yimention || y < 0)
+        else {
+            health -= 2;
+        }
+        if (health <= 0)
         {
-            y = (int)transform.position.y;
+            Destroy(this.gameObject);
         }
-        if (z >= xdimention || z < 0)
+        else
         {
-            z = (int)transform.position.z;
-        }
-        if (wm.GetBlock(x, y, z) as AirBlock != null && wm.GetBlock(x, y-1, z) as AirBlock == null) {
-            Vector3 v = new Vector3(x, y, z);
-            transform.position = v;
+            int x = (int)(transform.position.x + RNG.Next(-2, 3));
+            int y = (int)(transform.position.y + RNG.Next(-2, 3));
+            int z = (int)(transform.position.z + RNG.Next(-2, 3));
+            if (x >= xdimention || x < 0)
+            {
+                x = (int)transform.position.x;
+            }
+            if (y >= yimention || y < 0)
+            {
+                y = (int)transform.position.y;
+            }
+            if (z >= xdimention || z < 0)
+            {
+                z = (int)transform.position.z;
+            }
+            if (wm.GetBlock(x, y, z) as AirBlock != null && wm.GetBlock(x, y - 1, z) as AirBlock == null)
+            {
+                Vector3 v = new Vector3(x, y, z);
+                transform.position = v;
+            }
         }
 
     }
