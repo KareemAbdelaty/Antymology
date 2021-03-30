@@ -24,8 +24,6 @@ namespace Antymology.Terrain
         //number of ants at the start
         public int startingAnts;
 
-        // number of generations per training round
-        public int generationsPerRound;
 
         /// <summary>
         /// The raw data of the underlying world structure.
@@ -46,11 +44,16 @@ namespace Antymology.Terrain
 
         public int NestBlocks;
 
-        public int Iteration;
+        private int Iteration;
 
-        public int individual;
+        private int individual;
 
-        public bool queenAlive;
+        public bool Active;
+        public int MutationChance;
+        public int IndividualTrainingTimeinSeconds;
+        // number of generations per training round
+        public int generationsPerRound;
+        public int genrations;
 
         /// <summary>
         /// Random number generator.
@@ -93,6 +96,8 @@ namespace Antymology.Terrain
                 ConfigurationManager.Instance.World_Diameter,
                 ConfigurationManager.Instance.World_Height,
                 ConfigurationManager.Instance.World_Diameter];
+
+             Active = true;
         }
 
         /// <summary>
@@ -108,7 +113,7 @@ namespace Antymology.Terrain
         /// <summary>
         /// TO BE IMPLEMENTED BY YOU
         /// </summary>
-        private void GenerateAnts()
+        private SaveFile GenerateAnts()
         {
             Positions = new List<GameObject>[Blocks.GetLength(0), Blocks.GetLength(1), Blocks.GetLength(2)];
             for(int k = 0;k < Blocks.GetLength(0); k++)
@@ -163,6 +168,14 @@ namespace Antymology.Terrain
 
 
             }
+            SaveFile s = new SaveFile();
+            s.health_share_with_queen_chance = health_share_with_queen_chance;
+            s.health_share_chance = health_share_chance;
+            s.queen_health_share_chance = queen_health_share_chance;
+            s.eatChance = eatChance;
+            s.digChance = digChance;
+            s.createNestChance = createNestChance;
+            return s;
         }
 
         #endregion
@@ -538,6 +551,255 @@ namespace Antymology.Terrain
             Destroy(GameObject.Find("Chunks"));
 
         }
+        SaveFile GenerateAntsWithSpecifiedStats(int health_share_chance, int health_share_with_queen_chance, int queen_health_share_chance, int eatChance, int digChance, int createNestChance)
+        {
+            Positions = new List<GameObject>[Blocks.GetLength(0), Blocks.GetLength(1), Blocks.GetLength(2)];
+            for (int k = 0; k < Blocks.GetLength(0); k++)
+            {
+                for (int m = 0; m < Blocks.GetLength(1); m++)
+                {
+                    for (int n = 0; n < Blocks.GetLength(2); n++)
+                    {
+                        Positions[k, m, n] = new List<GameObject>();
+                    }
+                }
+            }
+            int health = 9999; 
+            int xd = Blocks.GetLength(0);
+            int yd = Blocks.GetLength(1);
+            int zd = Blocks.GetLength(2);
+            for (int i = 0; i < startingAnts; i++)
+            {
+                int x = RNG.Next(Blocks.GetLength(0));
+                int z = RNG.Next(Blocks.GetLength(2));
+                GameObject ant = (GameObject)Instantiate(antPrefab);
+                for (int y = Blocks.GetLength(1) - 1; y >= 0; y--)
+                {
+                    if (Blocks[x, y, z] as AirBlock != null)
+                    {
+                        ant.transform.position = new Vector3(x, y, z);
+                        AntBehaviour a = ant.GetComponent<AntBehaviour>();
+                        Positions[x, y, z].Add(ant);
+                        if (i == 0)
+                        {
+                            MeshRenderer me = ant.GetComponent<MeshRenderer>();
+                            me.material = Resources.Load("Queen", typeof(Material)) as Material;
+                            a.isqueen = true;
+
+                        }
+                        a.ID = i;
+                        a.wm = this;
+                        a.health = health;
+                        a.health_share_chance = health_share_chance;
+                        a.queen_health_share_chance = queen_health_share_chance;
+                        a.eatChance = eatChance;
+                        a.digChance = digChance;
+                        a.xdimention = xd;
+                        a.yimention = yd;
+                        a.zdimention = zd;
+                        a.createNestChance = createNestChance;
+
+                    }
+                }
+
+
+            }
+            SaveFile s = new SaveFile();
+            s.health_share_with_queen_chance = health_share_with_queen_chance;
+            s.health_share_chance = health_share_chance;
+            s.queen_health_share_chance = queen_health_share_chance;
+            s.eatChance = eatChance;
+            s.digChance = digChance;
+            s.createNestChance = createNestChance;
+            return s;
+
+        }
+        public SaveFile generateAntsFromParents(SaveFile parent1,SaveFile parent2)
+        {
+            Positions = new List<GameObject>[Blocks.GetLength(0), Blocks.GetLength(1), Blocks.GetLength(2)];
+            for (int k = 0; k < Blocks.GetLength(0); k++)
+            {
+                for (int m = 0; m < Blocks.GetLength(1); m++)
+                {
+                    for (int n = 0; n < Blocks.GetLength(2); n++)
+                    {
+                        Positions[k, m, n] = new List<GameObject>();
+                    }
+                }
+            }
+            int health = 9999;
+            int health_share_chance = CrossOverAndMutate(parent1.health_share_chance, parent2.health_share_chance);
+            int health_share_with_queen_chance = CrossOverAndMutate(parent1.health_share_with_queen_chance, parent2.health_share_with_queen_chance);
+            int queen_health_share_chance = CrossOverAndMutate(parent1.queen_health_share_chance, parent2.queen_health_share_chance);
+            int eatChance = CrossOverAndMutate(parent1.eatChance, parent2.eatChance);
+            int digChance = CrossOverAndMutate(parent1.digChance, parent2.digChance);
+            int createNestChance = CrossOverAndMutate(parent1.createNestChance, parent2.createNestChance);
+            int xd = Blocks.GetLength(0);
+            int yd = Blocks.GetLength(1);
+            int zd = Blocks.GetLength(2);
+            for (int i = 0; i < startingAnts; i++)
+            {
+                int x = RNG.Next(Blocks.GetLength(0));
+                int z = RNG.Next(Blocks.GetLength(2));
+                GameObject ant = (GameObject)Instantiate(antPrefab);
+                for (int y = Blocks.GetLength(1) - 1; y >= 0; y--)
+                {
+                    if (Blocks[x, y, z] as AirBlock != null)
+                    {
+                        ant.transform.position = new Vector3(x, y, z);
+                        AntBehaviour a = ant.GetComponent<AntBehaviour>();
+                        Positions[x, y, z].Add(ant);
+                        if (i == 0)
+                        {
+                            MeshRenderer me = ant.GetComponent<MeshRenderer>();
+                            me.material = Resources.Load("Queen", typeof(Material)) as Material;
+                            a.isqueen = true;
+
+                        }
+                        a.ID = i;
+                        a.wm = this;
+                        a.health = health;
+                        a.health_share_chance = health_share_chance;
+                        a.queen_health_share_chance = queen_health_share_chance;
+                        a.eatChance = eatChance;
+                        a.digChance = digChance;
+                        a.xdimention = xd;
+                        a.yimention = yd;
+                        a.zdimention = zd;
+                        a.createNestChance = createNestChance;
+
+                    }
+                }
+
+
+            }
+            return GenerateAntsWithSpecifiedStats(health_share_chance, health_share_with_queen_chance, queen_health_share_chance, eatChance, digChance, createNestChance);
+        }
+
+        private int CrossOverAndMutate(int gene1, int gene2)
+        {
+            int rand = RNG.Next(2);
+            int val;
+            if(rand == 0)
+            {
+                val = gene1;
+            }
+            {
+                val = gene2;
+            }
+            rand = RNG.Next(100);
+            if(rand < MutationChance)
+            {
+                int mutation = RNG.Next(-10, 11);
+                val += mutation;
+                val = Math.Max(val, 0);
+                return val;
+            }
+            else
+            {
+                return val;
+            }
+        }
+
+        class Comparer : IComparer
+        {
+
+            public int Compare(object x, object y)
+            {
+                SaveFile m = x as SaveFile;
+                SaveFile n = y as SaveFile;
+                if (m.NestSize >= n.NestSize)
+                {
+                    return -1;
+                }
+                else
+                {
+                    return 1;
+                }
+            }
+        }
+        IEnumerator Train()
+        {
+            Debug.Log("Training started");
+            for (int i = 0; i < genrations; i++)
+            {
+                Debug.Log(" Training Genereation " + i);
+                Iteration = i;
+                SaveFile[] saves = new SaveFile[generationsPerRound];
+                //first Generation is random
+                if (i == 0)
+                {             
+                    for (int x = 0; x < generationsPerRound; x++)
+                    {
+                        Debug.Log(" Training Individual" + x);
+                        individual = x;
+                        NestBlocks = 0;
+                        AliveAnts = 1000;
+                        Awake();
+                        GenerateData();
+                        GenerateChunks();
+                        Camera.main.transform.position = new Vector3(0 / 2, Blocks.GetLength(1), 0);
+                        Camera.main.transform.LookAt(new Vector3(Blocks.GetLength(0), 0, Blocks.GetLength(2)));
+                        saves[x] = GenerateAnts();
+                        yield return new WaitForSeconds(IndividualTrainingTimeinSeconds);
+                        saves[x].NestSize = NestBlocks;
+                        Debug.Log("NestSize for individual " + x + " is " + saves[x].NestSize);
+                        clearWorld();
+
+                    }
+                    Array.Sort(saves,new Comparer());
+                    SaveFile.Save(saves[0].health_share_with_queen_chance, saves[0].queen_health_share_chance, saves[0].eatChance, saves[0].digChance, saves[0].NestSize, saves[0].createNestChance, saves[0].health_share_chance);
+                    Debug.Log("Best NestSize for generation " + i + " is " + saves[0].NestSize);
+                }
+                else
+                {
+                    for (int x = 0; x < generationsPerRound; x++)
+                    {
+                        if(x < (generationsPerRound / 2))
+                        {
+                            Debug.Log(" Training Individual" + x);
+                            individual = x;
+                            NestBlocks = 0;
+                            AliveAnts = 1000;
+                            Awake();
+                            GenerateData();
+                            GenerateChunks();
+                            Camera.main.transform.position = new Vector3(0 / 2, Blocks.GetLength(1), 0);
+                            Camera.main.transform.LookAt(new Vector3(Blocks.GetLength(0), 0, Blocks.GetLength(2)));
+                            saves[x] = GenerateAntsWithSpecifiedStats(saves[x].health_share_chance, saves[x].health_share_with_queen_chance, saves[x].queen_health_share_chance, saves[x].eatChance, saves[x].digChance, saves[x].createNestChance);
+                            yield return new WaitForSeconds(IndividualTrainingTimeinSeconds);
+                            saves[x].NestSize = NestBlocks;
+                            Debug.Log("NestSize for individual " + x + " is " + saves[x].NestSize);
+                            clearWorld();
+                        }
+                        else
+                        {
+                            Debug.Log(" Training Individual" + x);
+                            individual = x;
+                            NestBlocks = 0;
+                            AliveAnts = 1000;
+                            Awake();
+                            GenerateData();
+                            GenerateChunks();
+                            Camera.main.transform.position = new Vector3(0 / 2, Blocks.GetLength(1), 0);
+                            Camera.main.transform.LookAt(new Vector3(Blocks.GetLength(0), 0, Blocks.GetLength(2)));
+                            int parent1 = RNG.Next(generationsPerRound / 2);
+                            int parent2 = RNG.Next(generationsPerRound / 2);
+                            saves[x] = generateAntsFromParents(saves[parent1],saves[parent2]);
+                            yield return new WaitForSeconds(IndividualTrainingTimeinSeconds);
+                            saves[x].NestSize = NestBlocks;
+                            Debug.Log("NestSize for individual " + x + " is " + saves[x].NestSize);
+                            clearWorld();
+                        }
+
+                    }
+                    Array.Sort(saves, new Comparer());
+                    SaveFile.Save(saves[0].health_share_with_queen_chance, saves[0].queen_health_share_chance, saves[0].eatChance, saves[0].digChance, saves[0].NestSize, saves[0].createNestChance, saves[0].health_share_chance);
+                    Debug.Log("Best NestSize for generation " + i + " is " + saves[0].NestSize);
+                }
+
+            }
+        }
         void OnGUI()
         {
             GUIStyle guiStyle = new GUIStyle();
@@ -559,6 +821,7 @@ namespace Antymology.Terrain
                     }
                     if (GUI.Button(new Rect(Screen.width / 2, Screen.height - 80, 150, 30), "Train"))
                     {
+                        Train();
                         view = views.Train;
                     }
                     break;
@@ -569,6 +832,7 @@ namespace Antymology.Terrain
                     GUI.Label(new Rect(Screen.width - 200, 10, 150, 20), b);
                     if (GUI.Button(new Rect(Screen.width / 2, Screen.height - 40, 150, 30), "MainMenu"))
                     {
+                        Active = false;
                         clearWorld();
                         view = views.MainMenu;
                     }
@@ -584,6 +848,7 @@ namespace Antymology.Terrain
                     GUI.Label(new Rect(Screen.width - 200, 50, 150, 20), d);
                     if (GUI.Button(new Rect(Screen.width / 2, Screen.height - 40, 150, 100), "MainMenu"))
                     {
+                        clearWorld();
                         view = views.MainMenu;
                     }
                     break;
