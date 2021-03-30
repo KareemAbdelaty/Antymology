@@ -142,7 +142,7 @@ public class AntBehaviour : MonoBehaviour
                             if (wm.GetBlock(((int)transform.position.x), ((int)transform.position.y) + 1, ((int)transform.position.z)) as AirBlock != null && ((int)transform.position.y) + 1 < yimention)
                             {
 
-                                Debug.Log("Queen has produced a nest Block");
+                                //Debug.Log("Queen has produced a nest Block");
                                 wm.SetBlock(((int)transform.position.x), ((int)transform.position.y), ((int)transform.position.z), ((new NestBlock()) as AbstractBlock));
                                 wm.Positions[((int)transform.position.x), ((int)transform.position.y), ((int)transform.position.z)].Remove(this.gameObject);
                                 Vector3 v = new Vector3(transform.position.x, transform.position.y + 1, transform.position.z);

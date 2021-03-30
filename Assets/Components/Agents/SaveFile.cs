@@ -18,12 +18,12 @@ public class SaveFile
 
 	public static void Save(int health_share_with_queen_chance, int queen_health_share_chance, int eatChance, int digChance, int NestSize, int createNestChance,int health_share_chance)
 	{
-			if (File.Exists("Best.data"))
+			if (File.Exists("Assets/Best.data"))
 			{
-				File.Delete("Best.data");
+				File.Delete("Assets/Best.data");
 			}
-			BinaryFormatter bf = new BinaryFormatter();
-		FileStream file = File.Create("Best.data");
+		BinaryFormatter bf = new BinaryFormatter();
+		FileStream file = File.Create("Assets/Best.data");
 		SaveFile data = new SaveFile();
 		data.health_share_with_queen_chance = health_share_with_queen_chance;
 		data.queen_health_share_chance = queen_health_share_chance;
@@ -37,15 +37,13 @@ public class SaveFile
 	}
 	public static SaveFile load()
     {
-			if (File.Exists(Application.persistentDataPath
-			   + "/Best.data"))
+			if (File.Exists("Assets/Best.data"))
 			{
 				BinaryFormatter bf = new BinaryFormatter();
 				FileStream file =
-						   File.Open( "Best.data", FileMode.Open);
+						   File.Open( "Assets/Best.data", FileMode.Open);
 				SaveFile data = (SaveFile)bf.Deserialize(file);
 				file.Close();
-				Debug.Log("Game data loaded!");
 				return data;
 			}
 			else

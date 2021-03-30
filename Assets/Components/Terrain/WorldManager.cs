@@ -720,18 +720,19 @@ namespace Antymology.Terrain
         }
         IEnumerator Train()
         {
+            SaveFile[] saves = new SaveFile[generationsPerRound];
             Debug.Log("Training started");
             for (int i = 0; i < genrations; i++)
             {
                 Debug.Log(" Training Genereation " + i);
                 Iteration = i;
-                SaveFile[] saves = new SaveFile[generationsPerRound];
                 //first Generation is random
                 if (i == 0)
                 {             
                     for (int x = 0; x < generationsPerRound; x++)
                     {
                         Debug.Log(" Training Individual" + x);
+                        Active = true;
                         individual = x;
                         NestBlocks = 0;
                         AliveAnts = 1000;
@@ -744,7 +745,15 @@ namespace Antymology.Terrain
                         yield return new WaitForSeconds(IndividualTrainingTimeinSeconds);
                         saves[x].NestSize = NestBlocks;
                         Debug.Log("NestSize for individual " + x + " is " + saves[x].NestSize);
-                        clearWorld();
+                        Active = false;
+                        try
+                        {
+                            clearWorld();
+                        }
+                        catch
+                        {
+
+                        }
 
                     }
                     Array.Sort(saves,new Comparer());
@@ -758,6 +767,7 @@ namespace Antymology.Terrain
                         if(x < (generationsPerRound / 2))
                         {
                             Debug.Log(" Training Individual" + x);
+                            Active = true;
                             individual = x;
                             NestBlocks = 0;
                             AliveAnts = 1000;
@@ -770,11 +780,20 @@ namespace Antymology.Terrain
                             yield return new WaitForSeconds(IndividualTrainingTimeinSeconds);
                             saves[x].NestSize = NestBlocks;
                             Debug.Log("NestSize for individual " + x + " is " + saves[x].NestSize);
-                            clearWorld();
+                            Active = false;
+                            try
+                            {
+                                clearWorld();
+                            }
+                            catch
+                            {
+
+                            }
                         }
                         else
                         {
                             Debug.Log(" Training Individual" + x);
+                            Active = true;
                             individual = x;
                             NestBlocks = 0;
                             AliveAnts = 1000;
@@ -789,7 +808,15 @@ namespace Antymology.Terrain
                             yield return new WaitForSeconds(IndividualTrainingTimeinSeconds);
                             saves[x].NestSize = NestBlocks;
                             Debug.Log("NestSize for individual " + x + " is " + saves[x].NestSize);
-                            clearWorld();
+                            Active = false;
+                            try
+                            {
+                                clearWorld();
+                            }
+                            catch
+                            {
+
+                            }
                         }
 
                     }
@@ -799,6 +826,32 @@ namespace Antymology.Terrain
                 }
 
             }
+            try
+            {
+                for (int x = 0; x < Positions.GetLength(0); x++)
+                {
+                    for (int y = 0; y < Positions.GetLength(1); y++)
+                    {
+                        for (int z = 0; z < Positions.GetLength(2); z++)
+                        {
+                            if (Positions[x, y, z] != null)
+                            {
+                                for (int k = 0; k < Positions[x, y, z].Count; k++)
+                                {
+                                    Destroy(Positions[x, y, z][k]);
+                                    Positions[x, y, z][k] = null;
+                                }
+                            }
+
+                        }
+                    }
+                }
+            }
+            catch
+            {
+
+            }
+
         }
         void OnGUI()
         {
@@ -816,13 +869,26 @@ namespace Antymology.Terrain
                         GenerateChunks();
                         Camera.main.transform.position = new Vector3(0 / 2, Blocks.GetLength(1), 0);
                         Camera.main.transform.LookAt(new Vector3(Blocks.GetLength(0), 0, Blocks.GetLength(2)));
-                        GenerateAnts();
+                        SaveFile s = SaveFile.load();
+                        if (s != null)
+                        {
+                            Debug.Log("Best Population Loaded");
+                            GenerateAntsWithSpecifiedStats(s.health_share_chance, s.health_share_with_queen_chance, s.queen_health_share_chance, s.eatChance, s.digChance, s.createNestChance);
+                        }
+                        else
+                        {
+                            Debug.Log("Best Population not found");
+                            GenerateAnts();
+                        }
+
                         view = views.CurrentPopulation;
                     }
                     if (GUI.Button(new Rect(Screen.width / 2, Screen.height - 80, 150, 30), "Train"))
                     {
-                        Train();
                         view = views.Train;
+                        Active = true;
+                        StartCoroutine(Train());
+
                     }
                     break;
                 case views.CurrentPopulation:
@@ -833,7 +899,14 @@ namespace Antymology.Terrain
                     if (GUI.Button(new Rect(Screen.width / 2, Screen.height - 40, 150, 30), "MainMenu"))
                     {
                         Active = false;
-                        clearWorld();
+                        try
+                        {
+                            clearWorld();
+                        }
+                        catch
+                        {
+
+                        }
                         view = views.MainMenu;
                     }
                     break;
@@ -841,14 +914,23 @@ namespace Antymology.Terrain
                     string a2 = "Alive Ants " + AliveAnts;
                     string b2 = "Nest Blocks " + NestBlocks;
                     string c = "Iteration " + Iteration;
-                    string d = "Individual" + individual;
+                    string d = "Individual " + individual;
                     GUI.Label(new Rect(10, 10, 150, 20), a2);
                     GUI.Label(new Rect(Screen.width - 200, 10, 150, 20), b2);
-                    GUI.Label(new Rect(10, 500, 150, 20), c);
+                    GUI.Label(new Rect(10, 50, 150, 20), c);
                     GUI.Label(new Rect(Screen.width - 200, 50, 150, 20), d);
-                    if (GUI.Button(new Rect(Screen.width / 2, Screen.height - 40, 150, 100), "MainMenu"))
+                    if (GUI.Button(new Rect(Screen.width / 2, Screen.height - 40, 150, 30), "MainMenu"))
                     {
-                        clearWorld();
+                        Active = false;
+                        try
+                        {
+                            clearWorld();
+                        }
+                        catch
+                        {
+
+                        }
+
                         view = views.MainMenu;
                     }
                     break;
