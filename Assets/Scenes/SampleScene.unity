@@ -379,7 +379,7 @@ MonoBehaviour:
   antPrefab: {fileID: 7590195990834161094, guid: 93d326e9dbb792f4ebe7543b55668e0b,
     type: 3}
   blockMaterial: {fileID: 2100000, guid: 4db9d8fce1a69b74f81daf1375c9ed88, type: 2}
-  startingAnts: 500
+  startingAnts: 1000
   AliveAnts: 0
   NestBlocks: 0
   Active: 0
